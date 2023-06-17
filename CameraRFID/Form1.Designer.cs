@@ -30,47 +30,25 @@ namespace CameraRFID
         private void InitializeComponent()
         {
             this.pictureBox = new System.Windows.Forms.PictureBox();
-            this.btnStop = new System.Windows.Forms.Button();
-            this.btnSnapshot = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox
             // 
+            this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox.Location = new System.Drawing.Point(0, 0);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(642, 768);
+            this.pictureBox.Size = new System.Drawing.Size(642, 734);
             this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
-            // 
-            // btnStop
-            // 
-            this.btnStop.Location = new System.Drawing.Point(800, 46);
-            this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(99, 23);
-            this.btnStop.TabIndex = 2;
-            this.btnStop.Text = "STOP";
-            this.btnStop.UseVisualStyleBackColor = true;
-            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
-            // 
-            // btnSnapshot
-            // 
-            this.btnSnapshot.Location = new System.Drawing.Point(800, 76);
-            this.btnSnapshot.Name = "btnSnapshot";
-            this.btnSnapshot.Size = new System.Drawing.Size(99, 23);
-            this.btnSnapshot.TabIndex = 3;
-            this.btnSnapshot.Text = "SNAPSHOT";
-            this.btnSnapshot.UseVisualStyleBackColor = true;
-            this.btnSnapshot.Click += new System.EventHandler(this.btnSnapshot_Click);
+            this.pictureBox.Click += new System.EventHandler(this.pictureBox_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1008, 729);
-            this.Controls.Add(this.btnSnapshot);
-            this.Controls.Add(this.btnStop);
+            this.ClientSize = new System.Drawing.Size(642, 734);
             this.Controls.Add(this.pictureBox);
             this.Name = "MainForm";
             this.Text = "Form1";
@@ -84,8 +62,6 @@ namespace CameraRFID
         #endregion
 
         private System.Windows.Forms.PictureBox pictureBox;
-        private System.Windows.Forms.Button btnStop;
-        private System.Windows.Forms.Button btnSnapshot;
     }
 }
 

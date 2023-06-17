@@ -27,6 +27,13 @@ namespace CameraRFID
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            CheckCaptureDevice();
+            FinalFrame = new VideoCaptureDevice();
+            streamStart();
+        }
+
+        private void CheckCaptureDevice()
+        {
             CaptureDevice = new FilterInfoCollection(FilterCategory.VideoInputDevice);
 
             if (CaptureDevice.Count == 0)
@@ -35,14 +42,6 @@ namespace CameraRFID
                 MessageBox.Show("카메라를 찾을 수 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
-            FinalFrame = new VideoCaptureDevice();
-            streamStart();
-        }
-
-        private void btnStart_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void streamStart()
@@ -69,7 +68,15 @@ namespace CameraRFID
             }
 
             FinalFrame.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
-            FinalFrame.Start();
+            try
+            {
+                FinalFrame.Start();
+            }
+            catch (Exception ex)
+            {
+                // Camera could not be started, probably because it is already in use. Inform the user.
+                MessageBox.Show("카메라를 시작할 수 없습니다. 다른 프로그램에서 이미 사용중인지 확인해주세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         void FinalFrame_NewFrame(object sender, NewFrameEventArgs eventArgs)
@@ -84,48 +91,8 @@ namespace CameraRFID
             }
             catch (Exception ex)
             {
-                
-            }
-
-            
-        }
-
-        private void btnStop_Click(object sender, EventArgs e)
-        {
-            if (FinalFrame.IsRunning == true) FinalFrame.SignalToStop();
-        }
-
-        private void btnSnapshot_Click(object sender, EventArgs e)
-        {
-            if (FinalFrame.IsRunning == true)
-            {
-                // Get the path of the local application data folder
-                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-                // Define the snapshot directory
-                string snapshotDirectory = Path.Combine(localAppData, "CAMERA_RFID", "Snapshot");
-
-                // If the directory does not exist, create it
-                if (!Directory.Exists(snapshotDirectory))
-                {
-                    Directory.CreateDirectory(snapshotDirectory);
-                }
-
-                // Define the full file path
-                string filePath = Path.Combine(snapshotDirectory, "Snapshot.bmp");
-
-                if (File.Exists(filePath)) // If the file exists, prevent a memory leak.
-                {
-                    // Delete the file to prevent a memory leak.
-                    File.Delete(filePath);
-                }
-
-                // Set the path and format to save the image.
-                ImageFormat format = ImageFormat.Bmp; // Set the image format to PNG.
-                ImageCodecInfo encoder = GetEncoder(format); // Get the ImageCodecInfo object.
-                EncoderParameters encoderParams = GetEncoderParameters(format); // Get the EncoderParameter object array.
-
-                pictureBox.Image.Save(filePath, encoder, encoderParams);
+                // Camera could not be started, probably because it is already in use. Inform the user.
+                MessageBox.Show("카메라를 시작할 수 없습니다. 다른 프로그램에서 이미 사용중인지 확인해주세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -160,6 +127,40 @@ namespace CameraRFID
             {
                 FinalFrame.SignalToStop();
                 FinalFrame.WaitForStop(); // Optionally, ensure the camera has stopped before closing the application.
+            }
+        }
+
+        private void pictureBox_Click(object sender, EventArgs e)
+        {
+            if (FinalFrame.IsRunning == true)
+            {
+                // Get the path of the local application data folder
+                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                // Define the snapshot directory
+                string snapshotDirectory = Path.Combine(localAppData, "CAMERA_RFID", "Snapshot");
+
+                // If the directory does not exist, create it
+                if (!Directory.Exists(snapshotDirectory))
+                {
+                    Directory.CreateDirectory(snapshotDirectory);
+                }
+
+                // Define the full file path
+                string filePath = Path.Combine(snapshotDirectory, "Snapshot.bmp");
+
+                if (File.Exists(filePath)) // If the file exists, prevent a memory leak.
+                {
+                    // Delete the file to prevent a memory leak.
+                    File.Delete(filePath);
+                }
+
+                // Set the path and format to save the image.
+                ImageFormat format = ImageFormat.Bmp; // Set the image format to PNG.
+                ImageCodecInfo encoder = GetEncoder(format); // Get the ImageCodecInfo object.
+                EncoderParameters encoderParams = GetEncoderParameters(format); // Get the EncoderParameter object array.
+
+                pictureBox.Image.Save(filePath, encoder, encoderParams);
             }
         }
     }
