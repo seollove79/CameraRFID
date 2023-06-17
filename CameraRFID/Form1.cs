@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using System.IO;
@@ -17,8 +16,7 @@ namespace CameraRFID
 {
     public partial class MainForm : Form
     {
-        private FilterInfoCollection CaptureDevice;
-        private VideoCaptureDevice FinalFrame;
+        private CameraService cameraService;
 
         public MainForm()
         {
@@ -27,76 +25,95 @@ namespace CameraRFID
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            CheckCaptureDevice();
-            FinalFrame = new VideoCaptureDevice();
-            streamStart();
-        }
-
-        private void CheckCaptureDevice()
-        {
-            CaptureDevice = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-
-            if (CaptureDevice.Count == 0)
-            {
-                // No camera detected. Inform the user and return.
-                MessageBox.Show("카메라를 찾을 수 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-        }
-
-        private void streamStart()
-        {
-            if (CaptureDevice.Count == 0)
-            {
-                // No camera detected. Return.
-                return;
-            }
-
-            FinalFrame = new VideoCaptureDevice(CaptureDevice[0].MonikerString);
-
-            if (FinalFrame.VideoCapabilities.Length > 0)
-            {
-                // Set preferred frame size (resolution) to FHD (1920x1080)
-                foreach (VideoCapabilities capability in FinalFrame.VideoCapabilities)
-                {
-                    if (capability.FrameSize.Width == 1920 && capability.FrameSize.Height == 1080)
-                    {
-                        FinalFrame.VideoResolution = capability;
-                        break;
-                    }
-                }
-            }
-
-            FinalFrame.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
-            try
-            {
-                FinalFrame.Start();
-            }
-            catch (Exception ex)
-            {
-                // Camera could not be started, probably because it is already in use. Inform the user.
-                MessageBox.Show("카메라를 시작할 수 없습니다. 다른 프로그램에서 이미 사용중인지 확인해주세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            cameraService = new CameraService();
+            cameraService.StartStream();
+            cameraService.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
         }
 
         void FinalFrame_NewFrame(object sender, NewFrameEventArgs eventArgs)
+        {
+            try
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    SetPictureBoxImage((Bitmap)eventArgs.Frame.Clone());
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SetPictureBoxImage(Image image)
         {
             if (pictureBox.Image != null)
             {
                 pictureBox.Image.Dispose();
             }
-            try
+
+            pictureBox.Image = image;
+        }
+
+        private async void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true; // Form 종료를 일시적으로 취소합니다.
+            Task task = Task.Run(() =>
             {
-                pictureBox.Image = (Bitmap)eventArgs.Frame.Clone();
-            }
-            catch (Exception ex)
+                if (cameraService.IsRunning())
+                {
+                    cameraService.Stop();
+                }
+            });
+
+            await task; // Task가 완료될 때까지 기다립니다.
+            cameraService.Dispose();
+            this.FormClosing -= MainForm_FormClosing; // 이벤트 핸들러를 제거하여 이 메서드가 다시 호출되지 않도록 합니다.
+            this.Close(); // Form을 정상적으로 종료합니다.
+        }
+
+        private void pictureBox_Click(object sender, EventArgs e)
+        {
+            if (cameraService.IsRunning())
             {
-                // Camera could not be started, probably because it is already in use. Inform the user.
-                MessageBox.Show("카메라를 시작할 수 없습니다. 다른 프로그램에서 이미 사용중인지 확인해주세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Start a new task to save the image to disk
+                Task.Run(() =>
+                {
+                    SaveImage(pictureBox.Image);
+                });
             }
         }
 
+        private void SaveImage(Image image)
+        {
+            // Get the path of the local application data folder
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
+            // Define the snapshot directory
+            string snapshotDirectory = Path.Combine(localAppData, "CAMERA_RFID", "Snapshot");
+
+            // If the directory does not exist, create it
+            if (!Directory.Exists(snapshotDirectory))
+            {
+                Directory.CreateDirectory(snapshotDirectory);
+            }
+
+            // Define the full file path
+            string filePath = Path.Combine(snapshotDirectory, "Snapshot.bmp");
+
+            if (File.Exists(filePath)) // If the file exists, prevent a memory leak.
+            {
+                // Delete the file to prevent a memory leak.
+                File.Delete(filePath);
+            }
+
+            // Set the path and format to save the image.
+            ImageFormat format = ImageFormat.Bmp; // Set the image format to PNG.
+            ImageCodecInfo encoder = GetEncoder(format); // Get the ImageCodecInfo object.
+            EncoderParameters encoderParams = GetEncoderParameters(format); // Get the EncoderParameter object array.
+
+            image.Save(filePath, encoder, encoderParams);
+        }
 
         private ImageCodecInfo GetEncoder(ImageFormat format)
         {
@@ -119,49 +136,6 @@ namespace CameraRFID
             encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 50L); // 이미지 품질 설정
 
             return encoderParams;
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (FinalFrame != null && FinalFrame.IsRunning == true)
-            {
-                FinalFrame.SignalToStop();
-                FinalFrame.WaitForStop(); // Optionally, ensure the camera has stopped before closing the application.
-            }
-        }
-
-        private void pictureBox_Click(object sender, EventArgs e)
-        {
-            if (FinalFrame.IsRunning == true)
-            {
-                // Get the path of the local application data folder
-                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-                // Define the snapshot directory
-                string snapshotDirectory = Path.Combine(localAppData, "CAMERA_RFID", "Snapshot");
-
-                // If the directory does not exist, create it
-                if (!Directory.Exists(snapshotDirectory))
-                {
-                    Directory.CreateDirectory(snapshotDirectory);
-                }
-
-                // Define the full file path
-                string filePath = Path.Combine(snapshotDirectory, "Snapshot.bmp");
-
-                if (File.Exists(filePath)) // If the file exists, prevent a memory leak.
-                {
-                    // Delete the file to prevent a memory leak.
-                    File.Delete(filePath);
-                }
-
-                // Set the path and format to save the image.
-                ImageFormat format = ImageFormat.Bmp; // Set the image format to PNG.
-                ImageCodecInfo encoder = GetEncoder(format); // Get the ImageCodecInfo object.
-                EncoderParameters encoderParams = GetEncoderParameters(format); // Get the EncoderParameter object array.
-
-                pictureBox.Image.Save(filePath, encoder, encoderParams);
-            }
         }
     }
 }
