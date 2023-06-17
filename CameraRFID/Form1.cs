@@ -107,22 +107,37 @@ namespace CameraRFID
         {
             if (FinalFrame.IsRunning == true)
             {
-                string filePath = "Snapshot.bmp";
-                if (File.Exists(filePath)) // 파일이 존재하는 경우 memory leak이 발생한다.
+                // Get the path of the local application data folder
+                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                // Define the snapshot directory
+                string snapshotDirectory = Path.Combine(localAppData, "CAMERA_RFID", "Snapshot");
+
+                // If the directory does not exist, create it
+                if (!Directory.Exists(snapshotDirectory))
                 {
-                    // 파일을 삭제하여 memory leak을 방지한다.
+                    Directory.CreateDirectory(snapshotDirectory);
+                }
+
+                // Define the full file path
+                string filePath = Path.Combine(snapshotDirectory, "Snapshot.bmp");
+
+                if (File.Exists(filePath)) // If the file exists, prevent a memory leak.
+                {
+                    // Delete the file to prevent a memory leak.
                     File.Delete(filePath);
                 }
 
-                // 이미지를 저장할 경로와 형식을 설정합니다.
-                ImageFormat format = ImageFormat.Bmp; // 이미지 형식은 PNG로 설정합니다.
-                ImageCodecInfo encoder = GetEncoder(format); // ImageCodecInfo 객체를 가져옵니다.
-                EncoderParameters encoderParams = GetEncoderParameters(format); // EncoderParameter 객체 배열을 가져옵니다.
+                // Set the path and format to save the image.
+                ImageFormat format = ImageFormat.Bmp; // Set the image format to PNG.
+                ImageCodecInfo encoder = GetEncoder(format); // Get the ImageCodecInfo object.
+                EncoderParameters encoderParams = GetEncoderParameters(format); // Get the EncoderParameter object array.
 
-
-                pictureBox.Image.Save("Snapshot.bmp", encoder, encoderParams);
+                pictureBox.Image.Save(filePath, encoder, encoderParams);
             }
         }
+
+
 
         private ImageCodecInfo GetEncoder(ImageFormat format)
         {
