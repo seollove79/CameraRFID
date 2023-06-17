@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CameraService.cs" />
+    <Compile Include="Cardreader.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

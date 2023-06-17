@@ -17,6 +17,7 @@ namespace CameraRFID
     public partial class MainForm : Form
     {
         private CameraService cameraService;
+        private Cardreader cardreader;
 
         public MainForm()
         {
@@ -28,7 +29,11 @@ namespace CameraRFID
             cameraService = new CameraService();
             cameraService.StartStream();
             cameraService.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
+
+            cardreader = new Cardreader("COM5", this);
+            cardreader.setSerialPort();
         }
+
 
         void FinalFrame_NewFrame(object sender, NewFrameEventArgs eventArgs)
         {
@@ -136,6 +141,11 @@ namespace CameraRFID
             encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 50L); // 이미지 품질 설정
 
             return encoderParams;
+        }
+
+        private void btnCardRead_Click(object sender, EventArgs e)
+        {
+            cardreader.read();
         }
     }
 }

@@ -30,6 +30,7 @@ namespace CameraRFID
         private void InitializeComponent()
         {
             this.pictureBox = new System.Windows.Forms.PictureBox();
+            this.btnCardRead = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -44,11 +45,22 @@ namespace CameraRFID
             this.pictureBox.TabStop = false;
             this.pictureBox.Click += new System.EventHandler(this.pictureBox_Click);
             // 
+            // btnCardRead
+            // 
+            this.btnCardRead.Location = new System.Drawing.Point(530, 677);
+            this.btnCardRead.Name = "btnCardRead";
+            this.btnCardRead.Size = new System.Drawing.Size(75, 23);
+            this.btnCardRead.TabIndex = 1;
+            this.btnCardRead.Text = "카드읽기";
+            this.btnCardRead.UseVisualStyleBackColor = true;
+            this.btnCardRead.Click += new System.EventHandler(this.btnCardRead_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(642, 734);
+            this.Controls.Add(this.btnCardRead);
             this.Controls.Add(this.pictureBox);
             this.Name = "MainForm";
             this.Text = "Form1";
@@ -62,6 +74,7 @@ namespace CameraRFID
         #endregion
 
         private System.Windows.Forms.PictureBox pictureBox;
+        private System.Windows.Forms.Button btnCardRead;
     }
 }
 
