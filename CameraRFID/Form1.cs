@@ -156,7 +156,11 @@ namespace CameraRFID
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (FinalFrame.IsRunning == true) FinalFrame.SignalToStop();
+            if (FinalFrame != null && FinalFrame.IsRunning == true)
+            {
+                FinalFrame.SignalToStop();
+                FinalFrame.WaitForStop(); // Optionally, ensure the camera has stopped before closing the application.
+            }
         }
     }
 }
