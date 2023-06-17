@@ -28,40 +28,32 @@ namespace CameraRFID
         private void MainForm_Load(object sender, EventArgs e)
         {
             CaptureDevice = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-            foreach (FilterInfo Device in CaptureDevice)
+
+            if (CaptureDevice.Count == 0)
             {
-                comboDevices.Items.Add(Device.Name);
+                // No camera detected. Inform the user and return.
+                MessageBox.Show("카메라를 찾을 수 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-            comboDevices.SelectedIndex = 0; // default to first camera
+
             FinalFrame = new VideoCaptureDevice();
             streamStart();
-
         }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            FinalFrame = new VideoCaptureDevice(CaptureDevice[comboDevices.SelectedIndex].MonikerString);
 
-            if (FinalFrame.VideoCapabilities.Length > 0)
-            {
-                // Set preferred frame size (resolution) to FHD (1920x1080)
-                foreach (VideoCapabilities capability in FinalFrame.VideoCapabilities)
-                {
-                    if (capability.FrameSize.Width == 1920 && capability.FrameSize.Height == 1080)
-                    {
-                        FinalFrame.VideoResolution = capability;
-                        break;
-                    }
-                }
-            }
-
-            FinalFrame.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
-            FinalFrame.Start();
         }
 
         private void streamStart()
         {
-            FinalFrame = new VideoCaptureDevice(CaptureDevice[0].Name);
+            if (CaptureDevice.Count == 0)
+            {
+                // No camera detected. Return.
+                return;
+            }
+
+            FinalFrame = new VideoCaptureDevice(CaptureDevice[0].MonikerString);
 
             if (FinalFrame.VideoCapabilities.Length > 0)
             {

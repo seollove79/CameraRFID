@@ -30,10 +30,8 @@ namespace CameraRFID
         private void InitializeComponent()
         {
             this.pictureBox = new System.Windows.Forms.PictureBox();
-            this.btnStart = new System.Windows.Forms.Button();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnSnapshot = new System.Windows.Forms.Button();
-            this.comboDevices = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -45,16 +43,6 @@ namespace CameraRFID
             this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
-            // 
-            // btnStart
-            // 
-            this.btnStart.Location = new System.Drawing.Point(800, 16);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(99, 23);
-            this.btnStart.TabIndex = 1;
-            this.btnStart.Text = "START";
-            this.btnStart.UseVisualStyleBackColor = true;
-            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // btnStop
             // 
@@ -76,23 +64,13 @@ namespace CameraRFID
             this.btnSnapshot.UseVisualStyleBackColor = true;
             this.btnSnapshot.Click += new System.EventHandler(this.btnSnapshot_Click);
             // 
-            // comboDevices
-            // 
-            this.comboDevices.FormattingEnabled = true;
-            this.comboDevices.Location = new System.Drawing.Point(800, 106);
-            this.comboDevices.Name = "comboDevices";
-            this.comboDevices.Size = new System.Drawing.Size(99, 20);
-            this.comboDevices.TabIndex = 4;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 729);
-            this.Controls.Add(this.comboDevices);
             this.Controls.Add(this.btnSnapshot);
             this.Controls.Add(this.btnStop);
-            this.Controls.Add(this.btnStart);
             this.Controls.Add(this.pictureBox);
             this.Name = "MainForm";
             this.Text = "Form1";
@@ -106,10 +84,8 @@ namespace CameraRFID
         #endregion
 
         private System.Windows.Forms.PictureBox pictureBox;
-        private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Button btnSnapshot;
-        private System.Windows.Forms.ComboBox comboDevices;
     }
 }
 
