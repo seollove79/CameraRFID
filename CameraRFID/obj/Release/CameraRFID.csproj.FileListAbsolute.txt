@@ -1,0 +1,17 @@
+D:\devwork\CameraRFID\CameraRFID\bin\Release\CameraRFID.exe.config
+D:\devwork\CameraRFID\CameraRFID\bin\Release\CameraRFID.exe
+D:\devwork\CameraRFID\CameraRFID\bin\Release\CameraRFID.pdb
+D:\devwork\CameraRFID\CameraRFID\bin\Release\AForge.dll
+D:\devwork\CameraRFID\CameraRFID\bin\Release\AForge.Video.DirectShow.dll
+D:\devwork\CameraRFID\CameraRFID\bin\Release\AForge.Video.dll
+D:\devwork\CameraRFID\CameraRFID\bin\Release\AForge.xml
+D:\devwork\CameraRFID\CameraRFID\bin\Release\AForge.Video.xml
+D:\devwork\CameraRFID\CameraRFID\bin\Release\AForge.Video.DirectShow.xml
+D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.csproj.AssemblyReference.cache
+D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.MainForm.resources
+D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.Properties.Resources.resources
+D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.csproj.GenerateResource.cache
+D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.csproj.CoreCompileInputs.cache
+D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.csproj.CopyComplete
+D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.exe
+D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.pdb
