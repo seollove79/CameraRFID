@@ -11,6 +11,7 @@ using AForge.Video;
 using AForge.Video.DirectShow;
 using System.IO;
 using System.Drawing.Imaging;
+using EasyModbus;
 
 namespace CameraRFID
 {
@@ -18,6 +19,8 @@ namespace CameraRFID
     {
         private CameraService cameraService;
         private Cardreader cardreader;
+
+        ModbusClient modbusClient = new ModbusClient("127.0.0.1", 502);
 
         public MainForm()
         {
@@ -145,7 +148,52 @@ namespace CameraRFID
 
         private void btnCardRead_Click(object sender, EventArgs e)
         {
-            cardreader.read();
+            try
+            {
+                cardreader.read();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
+
+        private void ReadModbusRegisters()
+        {
+            try
+            {
+                // 연결
+                if (!modbusClient.Connected)
+                    modbusClient.Connect();
+
+                // 홀딩 레지스터에 접근해서 값 받아오기
+                int startAddress = 0; // 시작 주소는 환경에 따라 변경해주세요.
+                int length = 5; // 읽어올 레지스터의 개수
+                int[] holdingRegister = modbusClient.ReadHoldingRegisters(startAddress, length);
+
+                for (int i = 0; i < length; i++)
+                {
+                    tbLog.Text += $"Register {startAddress + i} = {holdingRegister[i]}";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private async void btnReadDevice_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                await Task.Run(() => ReadModbusRegisters());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, "Modbus 연결에 실패했습니다: " + ex.Message, "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
     }
 }

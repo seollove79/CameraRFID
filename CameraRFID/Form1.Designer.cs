@@ -31,6 +31,9 @@ namespace CameraRFID
         {
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.btnCardRead = new System.Windows.Forms.Button();
+            this.tbLog = new System.Windows.Forms.TextBox();
+            this.btnReadDevice = new System.Windows.Forms.Button();
+            this.btnPost = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -39,15 +42,15 @@ namespace CameraRFID
             this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox.Location = new System.Drawing.Point(0, 0);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(642, 734);
-            this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox.Size = new System.Drawing.Size(484, 729);
+            this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
             this.pictureBox.Click += new System.EventHandler(this.pictureBox_Click);
             // 
             // btnCardRead
             // 
-            this.btnCardRead.Location = new System.Drawing.Point(530, 677);
+            this.btnCardRead.Location = new System.Drawing.Point(385, 25);
             this.btnCardRead.Name = "btnCardRead";
             this.btnCardRead.Size = new System.Drawing.Size(75, 23);
             this.btnCardRead.TabIndex = 1;
@@ -55,11 +58,41 @@ namespace CameraRFID
             this.btnCardRead.UseVisualStyleBackColor = true;
             this.btnCardRead.Click += new System.EventHandler(this.btnCardRead_Click);
             // 
+            // tbLog
+            // 
+            this.tbLog.Location = new System.Drawing.Point(312, 139);
+            this.tbLog.Multiline = true;
+            this.tbLog.Name = "tbLog";
+            this.tbLog.Size = new System.Drawing.Size(148, 218);
+            this.tbLog.TabIndex = 2;
+            // 
+            // btnReadDevice
+            // 
+            this.btnReadDevice.Location = new System.Drawing.Point(385, 55);
+            this.btnReadDevice.Name = "btnReadDevice";
+            this.btnReadDevice.Size = new System.Drawing.Size(75, 23);
+            this.btnReadDevice.TabIndex = 3;
+            this.btnReadDevice.Text = "장치값읽기";
+            this.btnReadDevice.UseVisualStyleBackColor = true;
+            this.btnReadDevice.Click += new System.EventHandler(this.btnReadDevice_Click);
+            // 
+            // btnPost
+            // 
+            this.btnPost.Location = new System.Drawing.Point(385, 85);
+            this.btnPost.Name = "btnPost";
+            this.btnPost.Size = new System.Drawing.Size(75, 23);
+            this.btnPost.TabIndex = 4;
+            this.btnPost.Text = "서버전송";
+            this.btnPost.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(642, 734);
+            this.ClientSize = new System.Drawing.Size(484, 729);
+            this.Controls.Add(this.btnPost);
+            this.Controls.Add(this.btnReadDevice);
+            this.Controls.Add(this.tbLog);
             this.Controls.Add(this.btnCardRead);
             this.Controls.Add(this.pictureBox);
             this.Name = "MainForm";
@@ -68,6 +101,7 @@ namespace CameraRFID
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -75,6 +109,9 @@ namespace CameraRFID
 
         private System.Windows.Forms.PictureBox pictureBox;
         private System.Windows.Forms.Button btnCardRead;
+        private System.Windows.Forms.TextBox tbLog;
+        private System.Windows.Forms.Button btnReadDevice;
+        private System.Windows.Forms.Button btnPost;
     }
 }
 

@@ -94,9 +94,15 @@ namespace CameraRFID
 
         public void read()
         {
+            if (!serialPort.IsOpen)
+            {
+                throw new Exception("카드리더기가 연결되어 있지 않습니다.");
+            }
+
             byte[] readByte = { 0x23, 0x03, 0x02, 0x00, 0x02 };
             serialPort.Write(readByte, 0, readByte.Length);
         }
+
 
         public void close()
         {

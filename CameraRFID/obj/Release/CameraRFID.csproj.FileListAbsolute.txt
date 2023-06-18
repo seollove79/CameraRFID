@@ -15,3 +15,5 @@ D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.csproj.CoreCompileInputs
 D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.csproj.CopyComplete
 D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.exe
 D:\devwork\CameraRFID\CameraRFID\obj\Release\CameraRFID.pdb
+D:\devwork\CameraRFID\CameraRFID\bin\Release\EasyModbus.dll
+D:\devwork\CameraRFID\CameraRFID\bin\Release\EasyModbus.xml
