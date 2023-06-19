@@ -13,9 +13,9 @@ namespace CameraRFID
         private string serialPortName;
         private List<int> receiveData = new List<int>();
         private string cardNumber;
-        private Form ownerForm;
+        private MainForm ownerForm;
 
-        public Cardreader(string strSerialPortName, Form ownerForm)
+        public Cardreader(string strSerialPortName, MainForm ownerForm)
         {
             serialPortName = strSerialPortName;
             this.ownerForm = ownerForm;
@@ -60,6 +60,7 @@ namespace CameraRFID
 
                     ownerForm.Invoke(new Action(() =>
                     {
+                        ownerForm.cardNumber = "";
                         MessageBox.Show(ownerForm, "카드를 인식하지 못했습니다.");
                     }));
                     break;
@@ -77,6 +78,7 @@ namespace CameraRFID
 
                     ownerForm.Invoke(new Action(() =>
                     {
+                        ownerForm.cardNumber = cardNumber;
                         MessageBox.Show(ownerForm, "카드 인식에 성공하였습니다. 카드 번호: " + cardNumber);
                     }));
 

@@ -19,6 +19,9 @@ namespace CameraRFID
     {
         private CameraService cameraService;
         private Cardreader cardreader;
+        public String cardNumber;
+        private Diary diary;
+        private Timer modbusTimer;
 
         ModbusClient modbusClient = new ModbusClient("127.0.0.1", 502);
 
@@ -35,6 +38,12 @@ namespace CameraRFID
 
             cardreader = new Cardreader("COM5", this);
             cardreader.setSerialPort();
+            diary = new Diary();
+
+            modbusTimer = new Timer();
+            modbusTimer.Interval = 1000; // 1 second
+            modbusTimer.Tick += readDevice; // 타이머 이벤트 핸들러로 기존의 btnReadDevice_Click 사용
+            modbusTimer.Start();
         }
 
 
@@ -183,7 +192,7 @@ namespace CameraRFID
             }
         }
 
-        private async void btnReadDevice_Click(object sender, EventArgs e)
+        private async void readDevice(object sender, EventArgs e)
         {
             try
             {
@@ -191,9 +200,18 @@ namespace CameraRFID
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Modbus 연결에 실패했습니다: " + ex.Message, "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine("Modbus 연결에 실패했습니다: " + ex.Message);
             }
         }
 
+        private void btnPost_Click(object sender, EventArgs e)
+        {
+            diary.post("GROWTH", "GICC0003S", 123, 2, 23, 50);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
