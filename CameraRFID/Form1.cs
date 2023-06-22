@@ -22,8 +22,13 @@ namespace CameraRFID
         public String cardNumber;
         private Diary diary;
         private Timer modbusTimer;
-
         ModbusClient modbusClient = new ModbusClient("127.0.0.1", 502);
+
+        const string CardreaderPortNum = "COM5"; //카드리더기 포트번호
+        const int ControllerReadTimeInterval = 1; //PLC의 값 읽어오는 주기 (단위:초)
+        const int RegisterCount = 5; //PLC에서 읽어올 레지스터 수
+
+        private double measureTEMP, measureHUMID, measureCO3, measureNH3;
 
         public MainForm()
         {
@@ -33,15 +38,15 @@ namespace CameraRFID
         private void MainForm_Load(object sender, EventArgs e)
         {
             cameraService = new CameraService();
-            cameraService.StartStream();
+            cameraService.StartStream(1280);
             cameraService.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
 
-            cardreader = new Cardreader("COM5", this);
+            cardreader = new Cardreader(CardreaderPortNum, this);
             cardreader.setSerialPort();
             diary = new Diary();
 
             modbusTimer = new Timer();
-            modbusTimer.Interval = 1000; // 1 second
+            modbusTimer.Interval = ControllerReadTimeInterval * 1000;
             modbusTimer.Tick += readDevice; // 타이머 이벤트 핸들러로 기존의 btnReadDevice_Click 사용
             modbusTimer.Start();
         }
@@ -89,17 +94,43 @@ namespace CameraRFID
             this.Close(); // Form을 정상적으로 종료합니다.
         }
 
-        private void pictureBox_Click(object sender, EventArgs e)
+        private async void pictureBox_Click(object sender, EventArgs e)
         {
             if (cameraService.IsRunning())
             {
-                // Start a new task to save the image to disk
-                Task.Run(() =>
+                cameraService.Stop();
+                cameraService.StartStream(3840);
+
+                await Task.Run(async () =>
                 {
-                    SaveImage(pictureBox.Image);
+                    while (true)
+                    {
+                        int width = 0;
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            width = pictureBox.Image.Width;
+                        });
+
+                        if (width == 3840)
+                        {
+                            break;
+                        }
+
+                        // Delay a bit to avoid high CPU usage
+                        await Task.Delay(100);
+                    }
+
+                    // Once the resolution is correct, save the image
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        SaveImage(pictureBox.Image);
+                        cameraService.Stop();
+                        cameraService.StartStream(1280);
+                    });
                 });
             }
         }
+
 
         private void SaveImage(Image image)
         {
@@ -151,7 +182,6 @@ namespace CameraRFID
         {
             EncoderParameters encoderParams = new EncoderParameters(1);
             encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 50L); // 이미지 품질 설정
-
             return encoderParams;
         }
 
@@ -178,10 +208,9 @@ namespace CameraRFID
 
                 // 홀딩 레지스터에 접근해서 값 받아오기
                 int startAddress = 0; // 시작 주소는 환경에 따라 변경해주세요.
-                int length = 5; // 읽어올 레지스터의 개수
-                int[] holdingRegister = modbusClient.ReadHoldingRegisters(startAddress, length);
+                int[] holdingRegister = modbusClient.ReadHoldingRegisters(startAddress, RegisterCount);
 
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < RegisterCount; i++)
                 {
                     tbLog.Text += $"Register {startAddress + i} = {holdingRegister[i]}";
                 }
@@ -206,7 +235,7 @@ namespace CameraRFID
 
         private void btnPost_Click(object sender, EventArgs e)
         {
-            diary.post("GROWTH", "GICC0003S", 123, 2, 23, 50);
+            diary.post("GROWTH", cardreader.getCardNumber(), 123, 2, 23, 50);
         }
 
         private void button1_Click(object sender, EventArgs e)

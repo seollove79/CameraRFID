@@ -34,21 +34,21 @@ namespace CameraRFID
             }
         }
 
-        public void StartStream()
+        public void StartStream(int resolution)
         {
             if (CaptureDevice.Count == 0)
             {
                 return;
             }
 
-            FinalFrame = new VideoCaptureDevice(CaptureDevice[0].MonikerString);
+            FinalFrame = new VideoCaptureDevice(CaptureDevice[CaptureDevice.Count-1].MonikerString);
+
 
             if (FinalFrame.VideoCapabilities.Length > 0)
             {
-                // Set preferred frame size (resolution) to FHD (1920x1080)
                 foreach (VideoCapabilities capability in FinalFrame.VideoCapabilities)
                 {
-                    if (capability.FrameSize.Width == 1920 && capability.FrameSize.Height == 1080)
+                    if (capability.FrameSize.Width == resolution)
                     {
                         FinalFrame.VideoResolution = capability;
                         break;
@@ -88,6 +88,11 @@ namespace CameraRFID
             }
         }
 
+        public Size getResolution()
+        {
+            return FinalFrame.VideoResolution.FrameSize;
+        }
+
         public void Dispose()
         {
             if (IsRunning())
@@ -101,5 +106,7 @@ namespace CameraRFID
                 FinalFrame = null;
             }
         }
+
+
     }
 }
