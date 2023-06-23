@@ -38,7 +38,7 @@ namespace CameraRFID
         private void MainForm_Load(object sender, EventArgs e)
         {
             cameraService = new CameraService();
-            cameraService.StartStream(1280);
+            cameraService.StartStream(1920);
             cameraService.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
 
             cardreader = new Cardreader(CardreaderPortNum, this);
@@ -94,39 +94,13 @@ namespace CameraRFID
             this.Close(); // Form을 정상적으로 종료합니다.
         }
 
-        private async void pictureBox_Click(object sender, EventArgs e)
+        private void pictureBox_Click(object sender, EventArgs e)
         {
             if (cameraService.IsRunning())
             {
-                cameraService.Stop();
-                cameraService.StartStream(3840);
-
-                await Task.Run(async () =>
+                Task.Run(() =>
                 {
-                    while (true)
-                    {
-                        int width = 0;
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            width = pictureBox.Image.Width;
-                        });
-
-                        if (width == 3840)
-                        {
-                            break;
-                        }
-
-                        // Delay a bit to avoid high CPU usage
-                        await Task.Delay(100);
-                    }
-
-                    // Once the resolution is correct, save the image
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        SaveImage(pictureBox.Image);
-                        cameraService.Stop();
-                        cameraService.StartStream(1280);
-                    });
+                    SaveImage(pictureBox.Image);
                 });
             }
         }
