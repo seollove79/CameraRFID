@@ -18,14 +18,14 @@ namespace CameraRFID
 
         }
 
-        public async Task post(string job, string cardNumber, float measureCO2, float measureNH3, float measureTEMP, float measureHUMID)
+        public async Task post(string job, string cardNumber, double measureCO2, double measureNH3, double measureTEMP, double measureHUMID)
         {
             
 
             try
             {
                 string note = "";
-                string requestUrl = "http://59.15.133.179:23500/createDiary/{job}/{cardNumber}"
+                string requestUrl = "https://ifactoryfarm.farminsf.com/back/createDiary/{job}/{cardNumber}"
                             .Replace("{job}", job)
                             .Replace("{cardNumber}", cardNumber);
 
@@ -103,7 +103,7 @@ namespace CameraRFID
                         form.Add(imageContent, "image", Path.GetFileName(imagePath));
 
                         // API URL 생성
-                        string apiUrlWithParams = "http://59.15.133.179:23500/ifactory/api/file/uploadfile/{uploadPath}/{id}"
+                        string apiUrlWithParams = "https://ifactoryfarm.farminsf.com/back/ifactory/api/file/uploadfile/{uploadPath}/{id}"
                             .Replace("{uploadPath}", "diary")
                             .Replace("{id}", id.ToString());
 

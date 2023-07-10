@@ -4,6 +4,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace CameraRFID
 {
@@ -15,10 +16,14 @@ namespace CameraRFID
         private MainForm ownerForm;
         private string cardNumber = "";
 
-        public Cardreader(string strSerialPortName, MainForm ownerForm)
+        private SendRfidDelegate sendRfidDelegate;
+
+
+        public Cardreader(string strSerialPortName, MainForm ownerForm, SendRfidDelegate del1)
         {
             serialPortName = strSerialPortName;
             this.ownerForm = ownerForm;
+            sendRfidDelegate = del1;
         }
 
         public void setSerialPort()
@@ -50,6 +55,7 @@ namespace CameraRFID
             int i_recv_size = serialPort.BytesToRead;
             byte[] b_tmp_buf = new byte[i_recv_size];
             serialPort.Read(b_tmp_buf, 0, i_recv_size);
+            cardNumber = "";
 
             foreach (var temp in b_tmp_buf)
             {
@@ -71,17 +77,21 @@ namespace CameraRFID
                 receiveData.Add(temp);
                 count++;
 
-                if (count == 11)
+                int checkCount = 15;
+
+                if (count == checkCount)
                 {
-                    for (int i = 3; i < 11; i++)
+                    for (int i = 3; i < checkCount; i++)
                     {
                         cardNumber = cardNumber + (char)receiveData[i];
                     }
 
-                    Console.WriteLine("카드 인식에 성공하였습니다. 카드 번호: " + cardNumber);
+                    string newNumber = Regex.Replace(cardNumber, @"[^0-9a-zA-Z가-힣]", "");
+                    sendRfidDelegate();
+                    Console.WriteLine("카드 인식에 성공하였습니다. 카드 번호: " + newNumber);
 
                     count = 0;
-                    cardNumber = "";
+                    cardNumber = newNumber;
                     receiveData.Clear();
                 }
             }
@@ -99,7 +109,7 @@ namespace CameraRFID
                 throw new Exception("카드리더기가 연결되어 있지 않습니다.");
             }
 
-            byte[] readByte = { 0x23, 0x03, 0x02, 0x00, 0x02 };
+            byte[] readByte = { 0x23, 0x03, 0x02, 0x00, 0x03 };
             serialPort.Write(readByte, 0, readByte.Length);
         }
 

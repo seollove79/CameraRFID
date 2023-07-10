@@ -30,11 +30,9 @@ namespace CameraRFID
         private void InitializeComponent()
         {
             this.pictureBox = new System.Windows.Forms.PictureBox();
-            this.btnCardRead = new System.Windows.Forms.Button();
-            this.tbLog = new System.Windows.Forms.TextBox();
-            this.btnPost = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox
@@ -42,62 +40,31 @@ namespace CameraRFID
             this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox.Location = new System.Drawing.Point(0, 0);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(387, 613);
+            this.pictureBox.Size = new System.Drawing.Size(391, 481);
             this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
-            this.pictureBox.Click += new System.EventHandler(this.pictureBox_Click);
             // 
-            // btnCardRead
+            // pictureBox1
             // 
-            this.btnCardRead.Location = new System.Drawing.Point(300, 10);
-            this.btnCardRead.Name = "btnCardRead";
-            this.btnCardRead.Size = new System.Drawing.Size(75, 23);
-            this.btnCardRead.TabIndex = 1;
-            this.btnCardRead.Text = "카드읽기";
-            this.btnCardRead.UseVisualStyleBackColor = true;
-            this.btnCardRead.Click += new System.EventHandler(this.btnCardRead_Click);
-            // 
-            // tbLog
-            // 
-            this.tbLog.Location = new System.Drawing.Point(227, 186);
-            this.tbLog.Multiline = true;
-            this.tbLog.Name = "tbLog";
-            this.tbLog.Size = new System.Drawing.Size(148, 218);
-            this.tbLog.TabIndex = 2;
-            // 
-            // btnPost
-            // 
-            this.btnPost.Location = new System.Drawing.Point(300, 39);
-            this.btnPost.Name = "btnPost";
-            this.btnPost.Size = new System.Drawing.Size(75, 23);
-            this.btnPost.TabIndex = 4;
-            this.btnPost.Text = "서버전송";
-            this.btnPost.UseVisualStyleBackColor = true;
-            this.btnPost.Click += new System.EventHandler(this.btnPost_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(300, 69);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 5;
-            this.button1.Text = "닫기";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.pictureBox1.Image = global::CameraRFID.Properties.Resources.close;
+            this.pictureBox1.Location = new System.Drawing.Point(350, 12);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(25, 25);
+            this.pictureBox1.TabIndex = 6;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(387, 613);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.btnPost);
-            this.Controls.Add(this.tbLog);
-            this.Controls.Add(this.btnCardRead);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+            this.ClientSize = new System.Drawing.Size(391, 481);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.pictureBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Location = new System.Drawing.Point(630, 84);
+            this.Location = new System.Drawing.Point(625, 143);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Form1";
@@ -105,18 +72,15 @@ namespace CameraRFID
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.PictureBox pictureBox;
-        private System.Windows.Forms.Button btnCardRead;
-        private System.Windows.Forms.TextBox tbLog;
-        private System.Windows.Forms.Button btnPost;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

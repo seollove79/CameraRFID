@@ -15,6 +15,9 @@ using EasyModbus;
 
 namespace CameraRFID
 {
+
+    delegate void SendRfidDelegate();
+
     public partial class MainForm : Form
     {
         private CameraService cameraService;
@@ -26,9 +29,17 @@ namespace CameraRFID
 
         const string CardreaderPortNum = "COM5"; //카드리더기 포트번호
         const int ControllerReadTimeInterval = 1; //PLC의 값 읽어오는 주기 (단위:초)
-        const int RegisterCount = 5; //PLC에서 읽어올 레지스터 수
+        const int RegisterCount = 10; //PLC에서 읽어올 레지스터 수
 
-        private double measureTEMP, measureHUMID, measureCO3, measureNH3;
+        private int commandRfidRead = 0;
+        private int sendEndRfid = 0;
+        private int commandSnapshot = 0;
+        private int checkSnapshotFinish = 0;
+        private int checkFinishMeasure = 0;
+        private double measureTEMP=0, measureHUMID=0, measureCO2=0, measureNH3=0;
+        private double measureWeight = 0;
+
+        
 
         public MainForm()
         {
@@ -37,11 +48,15 @@ namespace CameraRFID
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            SendRfidDelegate del1 = WriteRfidRegisters;
+
             cameraService = new CameraService();
             cameraService.StartStream(1920);
             cameraService.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
 
-            cardreader = new Cardreader(CardreaderPortNum, this);
+            cardreader = new Cardreader(CardreaderPortNum, this, del1);
+
+
             cardreader.setSerialPort();
             diary = new Diary();
 
@@ -93,19 +108,7 @@ namespace CameraRFID
             this.FormClosing -= MainForm_FormClosing; // 이벤트 핸들러를 제거하여 이 메서드가 다시 호출되지 않도록 합니다.
             this.Close(); // Form을 정상적으로 종료합니다.
         }
-
-        private void pictureBox_Click(object sender, EventArgs e)
-        {
-            if (cameraService.IsRunning())
-            {
-                Task.Run(() =>
-                {
-                    SaveImage(pictureBox.Image);
-                });
-            }
-        }
-
-
+     
         private void SaveImage(Image image)
         {
             // Get the path of the local application data folder
@@ -135,6 +138,7 @@ namespace CameraRFID
             EncoderParameters encoderParams = GetEncoderParameters(format); // Get the EncoderParameter object array.
 
             image.Save(filePath, encoder, encoderParams);
+            WriteSnapshotRegisters();
         }
 
         private ImageCodecInfo GetEncoder(ImageFormat format)
@@ -155,22 +159,9 @@ namespace CameraRFID
         private EncoderParameters GetEncoderParameters(ImageFormat format)
         {
             EncoderParameters encoderParams = new EncoderParameters(1);
-            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 50L); // 이미지 품질 설정
+            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L); // 이미지 품질 설정
             return encoderParams;
         }
-
-        private void btnCardRead_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                cardreader.read();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
 
         private void ReadModbusRegisters()
         {
@@ -181,12 +172,93 @@ namespace CameraRFID
                     modbusClient.Connect();
 
                 // 홀딩 레지스터에 접근해서 값 받아오기
-                int startAddress = 0; // 시작 주소는 환경에 따라 변경해주세요.
+                int startAddress = 9; // 시작 주소는 환경에 따라 변경해주세요.
                 int[] holdingRegister = modbusClient.ReadHoldingRegisters(startAddress, RegisterCount);
 
-                for (int i = 0; i < RegisterCount; i++)
+                commandRfidRead = holdingRegister[0];
+                sendEndRfid = holdingRegister[1];
+                commandSnapshot = holdingRegister[2];
+                checkSnapshotFinish = holdingRegister[3];
+                measureTEMP = holdingRegister[4]/10;
+                measureHUMID = holdingRegister[5]/100;
+                measureCO2 = holdingRegister[6];
+                measureNH3 = holdingRegister[7];
+                checkFinishMeasure = holdingRegister[8];
+                measureWeight = holdingRegister[9];
+
+                
+                if (commandRfidRead == 1 && sendEndRfid ==0)
                 {
-                    tbLog.Text += $"Register {startAddress + i} = {holdingRegister[i]}";
+                    //RFID리딩 조건
+                    try
+                    {
+                        cardreader.read();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+                //스냅샷 촬영
+                if (commandSnapshot == 1 && checkSnapshotFinish == 0)
+                {
+                    if (cameraService.IsRunning())
+                    {
+                        Task.Run(() =>
+                        {
+                            SaveImage(pictureBox.Image);
+                        });
+                    }
+                    else
+                    {
+                        WriteSnapshotRegisters();
+                    }
+                }
+
+                //사육일지 작성
+                if (checkFinishMeasure == 1)
+                {
+                    diary.post("GROWTH", cardreader.getCardNumber(), measureCO2, measureNH3, measureTEMP, measureHUMID);
+                    WriteMeasureFinishRegisters();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private void WriteRfidRegisters()
+        {
+            try
+            {
+                // 연결
+                if (!modbusClient.Connected)
+                    modbusClient.Connect();
+
+                // 홀딩 레지스터에 접근해서 값 받아오기
+                int startAddress = 0; // 시작 주소는 환경에 따라 변경해주세요.
+
+                string cardNumber = cardreader.getCardNumber();
+                int[] asciiArray = new int[9];
+                if (cardNumber.Length > 0)
+                {
+                    for (int i = 0; i <= 7; i++)
+                    {
+                        asciiArray[i] = cardNumber[i];
+                    }
+                    if (cardNumber.Length == 8)
+                    {
+                        asciiArray[8] = 0;
+                    }
+                    else
+                    {
+                        asciiArray[8] = (int)cardNumber[8];
+                    }
+                    modbusClient.WriteMultipleRegisters(0, asciiArray);
+                    modbusClient.WriteSingleRegister(10, 1);
                 }
             }
             catch (Exception ex)
@@ -194,6 +266,42 @@ namespace CameraRFID
                 throw new Exception(ex.Message);
             }
         }
+
+        private void WriteSnapshotRegisters()
+        {
+            try
+            {
+                // 연결
+                if (!modbusClient.Connected)
+                    modbusClient.Connect();
+                modbusClient.WriteSingleRegister(12, 1);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void WriteMeasureFinishRegisters()
+        {
+            try
+            {
+                // 연결
+                if (!modbusClient.Connected)
+                    modbusClient.Connect();
+                modbusClient.WriteSingleRegister(17, 0);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
         private async void readDevice(object sender, EventArgs e)
         {
@@ -205,16 +313,6 @@ namespace CameraRFID
             {
                 Console.WriteLine("Modbus 연결에 실패했습니다: " + ex.Message);
             }
-        }
-
-        private void btnPost_Click(object sender, EventArgs e)
-        {
-            diary.post("GROWTH", cardreader.getCardNumber(), 123, 2, 23, 50);
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
     }
 }
